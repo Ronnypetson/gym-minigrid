@@ -1,4 +1,4 @@
-from project_RL.sarsa import plot_graph
+from project_RL import plot
 from project_RL.sarsa.sarsa_lambda_agent import SarsaLambda
 from gym_minigrid.wrappers import *
 from datetime import datetime as dt
@@ -25,6 +25,7 @@ def train(env, hyperparameters):
 
     log_filename = f'log_{env_name}_{dt.now().strftime("%y-%m-%d-%H-%M-%S")}.csv'
     with open(log_filename, 'a') as f:
+        f.write(f'hyperparameters_size,{hyperparameters.__len__()}\n')
         f.write('\n'.join(map(','.join, {str(key): str(value) for key, value in hyperparameters.items()}.items())))
         f.write('\n')
         # write csv header
@@ -60,6 +61,9 @@ def train(env, hyperparameters):
                     play(env, agent, log_filename)
             step += 1
     env.close()
+
+    plot.plot(log_filename[:-4]) # filename without extension
+
     return agent
 
 
