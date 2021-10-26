@@ -9,13 +9,14 @@ class SarsaLambda:
     It converges to the optimal action-value function.
     """
 
-    def __init__(self, env, discount_rate=0.9, learning_rate=0.1, epsilon=0.5, lambda_param=0.8):
+    def __init__(self, env, discount_rate=0.9, learning_rate=0.1, lambda_param=0.8, n0=3):
         self.action_size = env.action_space.n
-        self.epsilon = epsilon
+        self.n0 = n0
         self.discount_rate = discount_rate
         self.learning_rate = learning_rate
         self.lambda_param = lambda_param
         self.__init_q_value_table()
+        self.__init_state_visits_table()
 
     def __init_q_value_table(self):
         """Creates q_value_table as a dictionary.
@@ -25,6 +26,12 @@ class SarsaLambda:
 
         """
         self.q_value_table = dd(lambda: {i: 0 for i in range(0, self.action_size)})
+
+    def __init_state_visits_table(self):
+        """Initialise state visits table with zeros.
+        It stores how many times each state was visited while the agent is trained.
+        """
+        self.state_visits = dd(lambda: 0)
 
     def init_eligibility_table(self):
         """Initialise eligibility trace table with zeros. Must be invoked before each episode.
@@ -37,7 +44,8 @@ class SarsaLambda:
         With probability epsilon choose random action.
 
         """
-        if random.random() < self.epsilon:
+        eps = self.n0 / (self.n0 + self.state_visits[state])
+        if random.random() < eps:
             return random.choice(range(self.action_size))
         else:
             return self.get_new_action_greedly(state)
@@ -57,16 +65,6 @@ class SarsaLambda:
                 list_of_max_actions.append(key)
         return random.choice(list_of_max_actions)
 
-    # def _get_goal_position(self, state):
-    #     grid = state['image']
-    #     rows = len(grid)
-    #     columns = len(grid[0])
-    #     for row in range(rows):
-    #         for column in range(columns):
-    #             if grid[row][column][0] == 8:
-    #                 return 10 * row + column
-    #     return 0
-
     def update(self, state, action, reward, new_state, new_action, done):
         """Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
@@ -82,3 +80,6 @@ class SarsaLambda:
                 for action in self.eligibility_table[state].keys():
                     self.q_value_table[state][action] += self.learning_rate * td_error * self.eligibility_table[state][action]
                     self.eligibility_table[state][action] = self.discount_rate * self.lambda_param * self.eligibility_table[state][action]
+
+        # post update
+        self.state_visits[state] += 1
