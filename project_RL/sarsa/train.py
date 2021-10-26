@@ -1,6 +1,7 @@
+from project_RL import plot
 from project_RL.sarsa.sarsa_lambda_agent import SarsaLambda
 from gym_minigrid.wrappers import *
-from time import time
+from datetime import datetime as dt
 
 
 def train(env, hyperparameters):
@@ -11,18 +12,20 @@ def train(env, hyperparameters):
             - env_name
             - discount_rate
             - learning_rate
-            - epsilon
             - lambda
+            - n0 (initial exploration rate, it decays as the number of visits to a state increases)
     """
     agent = SarsaLambda(env, hyperparameters['discount_rate'],
                         hyperparameters['learning_rate'],
-                        hyperparameters['epsilon'],
-                        hyperparameters['lambda'])
+                        hyperparameters['lambda'],
+                        hyperparameters['n0'])
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
-    log_filename = f'log_{env_name}_{time()}.csv'
+
+    log_filename = f'log_{env_name}_{dt.now().strftime("%y-%m-%d-%H-%M-%S")}.csv'
     with open(log_filename, 'a') as f:
+        f.write(f'hyperparameters_size,{hyperparameters.__len__()}\n')
         f.write('\n'.join(map(','.join, {str(key): str(value) for key, value in hyperparameters.items()}.items())))
         f.write('\n')
         # write csv header
@@ -58,6 +61,9 @@ def train(env, hyperparameters):
                     play(env, agent, log_filename)
             step += 1
     env.close()
+
+    plot.plot(log_filename[:-4]) # filename without extension
+
     return agent
 
 
@@ -83,10 +89,6 @@ def play(env, agent, log_filename, episodes=1):
             total_reward += reward
             action = agent.get_new_action_greedly(next_state)
 
-        # write result to csv log
-        with open(log_filename, 'a') as f:
-            f.write(f'-1,-1,{total_reward},{agent.q_value_table.__len__()}\n')
-
 
 if __name__ == '__main__':
     hyperparameters = {
@@ -102,7 +104,7 @@ if __name__ == '__main__':
         'discount_rate': 0.9,
         'learning_rate': 0.01,
         'lambda': 0.9,
-        'epsilon': 0.3
+        'n0': 3
     }
 
     env = gym.make(hyperparameters['env_name'])
