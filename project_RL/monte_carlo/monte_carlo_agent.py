@@ -1,13 +1,10 @@
 import random
-import numpy as np
 from collections import defaultdict as dd
-import time
 
 class MonteCarlo:
 
     def __init__(self, env, n_zero=7):
         self.action_size = env.action_space.n
-        print(self.action_size)
         self.n_zero = n_zero
         self.greedy_policy = lambda x: self.n_zero/(self.n_zero + x)
         self.init_q_value_table()
@@ -30,38 +27,46 @@ class MonteCarlo:
     def init_visited_states(self):
         """**Initialise visited states table with zeros.
         Its first dimension is the state itself and the second dimension is the quantity of times that state has been visited"""
-        # Some help here
         self.visited_states = dd(int)
 
     def get_epsilon(self, state):
-        return 1 if not self.visited_states[state] else self.n_zero/(self.n_zero + self.visited_states[state])
+        return 1 if not self.visited_states[state] else self.greedy_policy(self.visited_states[state])
 
     def get_new_action_e_greedly(self, state):
         """With probability 1 - epsilon choose the greedy action.
         With probability epsilon choose random action.
         """
         eps = self.get_epsilon(state)
-        if random.random() < eps:
-            # print('estocastico')
+        rnd = random.random()
+        if rnd < eps:
+            action = random.choice(range(self.action_size))
+            # print(f'random action: {action}')
             return random.choice(range(self.action_size))
         else:
-            # print('deterministico')
-            return self.get_new_action_greedly(state)
+            action = self.get_new_action_greedly(state)
+            return action
     
     def get_new_action_greedly(self, state):
         """With probability 1.0 choose the greedy action.
         With probability 0.0 choose random action.
         Uses a random selection of actions whenever you have a draw among actions.
-
         """
-        max_action = 0
-        max_val = -float('inf')
-        reward_state = self.q_value_table[state]
-        for action in reward_state.keys():
-            if reward_state[action] > max_val:
-                max_val = reward_state[action]
-                max_action = action
-        return max_action
+        # max_action = 0
+        # max_val = -float('inf')
+        # reward_state = self.q_value_table[state]
+        # for action in reward_state.keys():
+        #     if reward_state[action] > max_val:
+        #         max_val = reward_state[action]
+        #         max_action = action
+        
+        # if(max_action > 0):
+        #     print(f'reward {reward_state[max_action]}')
+        #     print(f'MAX ACTION {max_action} AND TEST {max(self.q_value_table[state], key=self.q_value_table[state].get)}')
+        # return max_action
+
+        max_value = self.q_value_table[state][max(self.q_value_table[state], key=self.q_value_table[state].get)]
+        max_actions = [i for i, x in self.q_value_table[state].items() if x == max_value]
+        return random.choice(max_actions)
 
     def update(self, states, actions, rewards,):
         for state, action, reward in zip(states, actions, rewards):

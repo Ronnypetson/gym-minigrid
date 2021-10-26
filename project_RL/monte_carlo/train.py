@@ -56,7 +56,7 @@ def train(env, hyperparameters):
             if done:
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 1000 == 0:
+                if episode % 100 == 0 and episode !=0:
                     print(f'episode {episode}')
                     play(env, agent, log_filename)
             step += 1
