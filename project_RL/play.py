@@ -36,7 +36,7 @@ def parse_observation_to_state(observation):
 
 
 if __name__ == '__main__':
-    agent_relative_path = 'trained_agent/agent_log_MiniGrid-DoorKeyObst-7x7-v0_21-10-26-14-37-21.pickle'
+    agent_relative_path = 'sarsa/trained_agent/agent_log_MiniGrid-DoorKeyObst-7x7-v0_21-10-26-14-37-21.pickle'
     agent_filename = os.path.join(os.path.dirname(__file__), agent_relative_path)
     env_name = 'MiniGrid-DoorKeyObst-7x7-v0'
     load_agent(agent_filename, env_name)
