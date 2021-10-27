@@ -56,14 +56,9 @@ class SarsaLambda:
         Uses a random selection of actions whenever you have a draw among actions.
 
         """
-        q_state = self.q_value_table[state]
-        max_value = max(q_state.items(), key=lambda x: x[1])
-        list_of_max_actions = list()
-        # Iterate over all the items in dictionary to find keys with max value
-        for key, value in q_state.items():
-            if value == max_value[1]:
-                list_of_max_actions.append(key)
-        return random.choice(list_of_max_actions)
+        max_value = max(self.q_value_table[state].values())
+        max_actions = [i for i, x in self.q_value_table[state].items() if x == max_value]
+        return random.choice(max_actions)
 
     def update(self, state, action, reward, new_state, new_action, done):
         """Updates the state action value for every pair state and action
