@@ -2,6 +2,9 @@ from project_RL import plot
 from project_RL.sarsa.sarsa_lambda_agent import SarsaLambda
 from gym_minigrid.wrappers import *
 from datetime import datetime as dt
+from project_RL.play import play
+import dill
+import pickle
 
 
 def train(env, hyperparameters):
@@ -58,11 +61,14 @@ def train(env, hyperparameters):
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
                 if episode % 100 == 0:
-                    play(env, agent, log_filename)
+                    play(env, agent)
             step += 1
     env.close()
 
-    plot.plot(log_filename[:-4]) # filename without extension
+    with open(f'agent_{log_filename[:-4]}.pickle', 'wb') as f:
+        dill.dump(agent, f, pickle.HIGHEST_PROTOCOL)
+
+    plot.plot(log_filename[:-4])  # filename without extension
 
     return agent
 
@@ -70,24 +76,6 @@ def train(env, hyperparameters):
 def parse_observation_to_state(observation):
     return tuple([tuple(observation["image"].flatten()),
                   observation["direction"]])
-
-
-def play(env, agent, log_filename, episodes=1):
-    for episode in range(episodes):
-        # reset environment before each episode
-        observation = env.reset()
-        state = parse_observation_to_state(observation)
-        action = agent.get_new_action_greedly(state)
-        done = False
-        total_reward = 0
-
-        env.render()
-        while not done:
-            observation, reward, done, info = env.step(action)
-            env.render()
-            next_state = parse_observation_to_state(observation)
-            total_reward += reward
-            action = agent.get_new_action_greedly(next_state)
 
 
 if __name__ == '__main__':
@@ -101,6 +89,7 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
+        # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
         'discount_rate': 0.9,
         'learning_rate': 0.01,
         'lambda': 0.9,
