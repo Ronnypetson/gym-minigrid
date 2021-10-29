@@ -12,7 +12,6 @@ def train(env, hyperparameters):
             - n zero value
     """
     agent = MonteCarlo(env, hyperparameters['n_zero'])
-    agent.init_eligibility_table()
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
@@ -97,15 +96,17 @@ if __name__ == '__main__':
     hyperparameters = {
         # 'env_name': 'MiniGrid-Empty-5x5-v0',
         # 'env_name': 'MiniGrid-DoorKey-8x8-v0',
-        'env_name': 'MiniGrid-Empty-Random-6x6-v0',
-        # 'env_name': 'MiniGrid-Empty-16x16-v0',
+        # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
+        'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
         # 'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
-        # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
+        # 'env_name': 'MiniGrid-Dynamic-Obstacles-6x6-v0',
         'n_zero': 7
     }
 
     env = gym.make(hyperparameters['env_name'])
+    # env = ReseedWrapper(env)
     agent = train(env, hyperparameters)
+    
