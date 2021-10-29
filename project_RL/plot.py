@@ -36,4 +36,4 @@ def plot(log_filename, block_size=10):
 
 
 if __name__ == '__main__':
-    plot('log_MiniGrid-Dynamic-Obstacles-Random-6x6-v0_21-10-23-12-14-56', 1)
+    plot('D:\Documentos\gym-minigrid\project_RL\monte_carlo\log_MiniGrid-Empty-16x16-v0_1635536995.4522812', 1)
