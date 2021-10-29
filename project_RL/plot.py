@@ -38,3 +38,4 @@ def plot(log_filename, block_size=10):
 
 if __name__ == '__main__':
     plot(os.path.join(os.path.dirname(__file__), 'sarsa/trained_agent/log_MiniGrid-DoorKeyObst-7x7-v0_21-10-26-14-37-21'), 100)
+
