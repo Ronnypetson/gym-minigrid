@@ -1,3 +1,4 @@
+import os
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,7 +6,7 @@ import numpy as np
 
 def plot(log_filename, block_size=10):
     """Plots rewards from csv of train data"""
-    with open(f'{log_filename}.csv') as file:
+    with open(f'{log_filename}.csv', 'r') as file:
         # process hyperparameters from first rows
         firstrow = file.readline().replace('\n', '').split(',')
         hyperparameters_size = int(firstrow[1])
@@ -18,7 +19,7 @@ def plot(log_filename, block_size=10):
         # process the remaining lines, plot reward
         csv_file = csv.DictReader(file)
 
-        rewards = [round(float(row['Total Reward']), 2) for row in csv_file]
+        rewards = [float(row['Total Reward']) for row in csv_file]
         # rewards length must be multiple of block size,
         if len(rewards) % block_size != 0:
             # discard last incomplete block
@@ -30,10 +31,11 @@ def plot(log_filename, block_size=10):
         plt.ylabel('avg reward')
         plt.xlabel(f'batch {block_size} episode')
         plt.gcf().text(0.02, 0.0,  hyperparameters, fontsize=8)
-        plt.subplots_adjust(bottom=0.3) # make room for text
+        plt.subplots_adjust(bottom=0.3)  # make room for text
         plt.savefig(f'{log_filename}.png')
         plt.show()
 
 
 if __name__ == '__main__':
-    plot('D:\Documentos\gym-minigrid\project_RL\monte_carlo\log_MiniGrid-Empty-16x16-v0_1635536995.4522812', 1)
+    plot(os.path.join(os.path.dirname(__file__), 'sarsa/trained_agent/log_MiniGrid-DoorKeyObst-7x7-v0_21-10-26-14-37-21'), 100)
+
