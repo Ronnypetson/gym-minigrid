@@ -2,6 +2,7 @@ from project_RL.linear_sarsa.sarsa_lambda_agent import LinearSarsaLambda
 from gym_minigrid.wrappers import *
 from time import time
 from project_RL.linear_sarsa.parsing import parse_observation_to_state
+from matplotlib import pyplot as plt
 
 
 def train(env, hyperparameters, num_episodes=int(1e2)):
@@ -17,9 +18,10 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
     """
     agent = LinearSarsaLambda(env,
                               hyperparameters['discount_rate'],
-                              hyperparameters['learning_rate'],
+                              hyperparameters['initial_learning_rate'],
                               hyperparameters['epsilon'],
-                              hyperparameters['lambda'])
+                              hyperparameters['lambda'],
+                              hyperparameters['n0'])
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
@@ -32,7 +34,8 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
 
     # initialise variables for plotting purpose
     step = 0
-
+    all_rewards = []
+    all_means = []
     for episode in range(num_episodes):
         # reset environment before each episode
         total_reward = 0.0
@@ -54,19 +57,23 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
             action = next_action
 
             if done:
+                all_rewards.append(total_reward)
+                all_means.append(np.mean(all_rewards[-50:]))
+
+                if episode % 50 == 0:
+                    plt.plot(all_means, 'b.')
+                    plt.draw()
+                    plt.pause(0.0001)
+                    plt.clf()
+
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 100 == 99:
-                    play(env, agent, log_filename)
+                # if episode % 100 == 99:
+                #     play(env, agent, log_filename)
             step += 1
     env.close()
     return agent
 
-
-# def parse_observation_to_state(observation):
-#     # return tuple(observation.flatten())
-#     return tuple([tuple(observation["image"].flatten()),
-#                   observation["direction"]])
 
 def play(env, agent, log_filename, episodes=1):
     for episode in range(episodes):
@@ -93,7 +100,7 @@ def play(env, agent, log_filename, episodes=1):
 if __name__ == '__main__':
     hyperparameters = {
         # 'env_name': 'MiniGrid-Empty-5x5-v0',
-        'env_name': 'MiniGrid-DoorKey-8x8-v0',
+        'env_name': 'MiniGrid-DoorKey-5x5-v0',
         # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
@@ -102,11 +109,15 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'Pong-ram-v0',
-        'discount_rate': 0.9,
-        'learning_rate': 1e-3,
+        'discount_rate': 0.99,
+        'initial_learning_rate': 1e-2,
         'lambda': 0.9,
-        'epsilon': 0.3
+        'epsilon': 0.3,
+        'n0': 10
     }
 
-    env = gym.make(hyperparameters['env_name'])
-    agent = train(env, hyperparameters, num_episodes=int(1e3))
+    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
+    plt.ion()
+    agent = train(env, hyperparameters, num_episodes=int(2e3))
+    input()
+    play(env, agent, '')
