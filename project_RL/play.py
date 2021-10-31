@@ -1,6 +1,7 @@
 import os
 import dill
 from gym_minigrid.wrappers import *
+from project_RL.linear_parsing import parse_observation_to_state
 
 
 def load_agent(agent_filename, env_name):
@@ -27,12 +28,6 @@ def play(env, agent, episodes=1):
             next_state = parse_observation_to_state(observation)
             total_reward += reward
             action = agent.get_new_action_greedly(next_state)
-
-
-# TODO: cleanup remove duplication
-def parse_observation_to_state(observation):
-    return tuple([tuple(observation["image"].flatten()),
-                  observation["direction"]])
 
 
 if __name__ == '__main__':

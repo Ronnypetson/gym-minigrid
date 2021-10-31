@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from collections import defaultdict as dd
-from project_RL.linear_sarsa.parsing import parse_observation_to_state
+from project_RL.linear_parsing import parse_observation_to_state
 
 
 class LinearSarsaLambda:
@@ -9,10 +9,11 @@ class LinearSarsaLambda:
     It learns the state action value of each state and action pair.
     It converges to the optimal action-value function.
     """
+
     def __init__(self,
                  env,
                  discount_rate=0.9,
-                 initial_learning_rate=1e-2,
+                 learning_rate=0.1,
                  epsilon=0.5,
                  lambda_param=0.8,
                  n0=None):
@@ -22,7 +23,7 @@ class LinearSarsaLambda:
         self.num_features = len(state)
         self.epsilon = epsilon
         self.discount_rate = discount_rate
-        self.initial_learning_rate = initial_learning_rate
+        self.learning_rate = learning_rate
         self.lambda_param = lambda_param
         self.n0 = n0
         self.__init_q_value_table()
@@ -72,17 +73,13 @@ class LinearSarsaLambda:
         """
         q_state = self.q_value_table @ state
         max_value = max(q_state)
-        list_of_max_actions = list()
-        # Iterate over all the items in dictionary to find keys with max value
-        for key, value in enumerate(q_state):
-            if value == max_value:
-                list_of_max_actions.append(key)
-        action = random.choice(list_of_max_actions)
-        return action
+        max_actions = [i for i, x in enumerate(q_state) if x == max_value]
+        return random.choice(max_actions)
 
     def update(self, state, action, reward, new_state, new_action, done):
         """Updates the state action value for every pair state and action
-        in proportion to TD-error and eligibility trace.
+        in proportion to TD-error and eligibility trace
+
         """
         q_value_state_s = self.q_value_table @ state
         q_value_new_state = self.q_value_table @ new_state
@@ -91,6 +88,8 @@ class LinearSarsaLambda:
                                          * self.lambda_param\
                                          * self.eligibility_table[action]\
                                          + state
-        # self.state_visits[tuple(state)] += 1
-        # learning_rate = self.initial_learning_rate / self.state_visits[tuple(state)]
-        self.q_value_table[action] += self.initial_learning_rate * td_error * self.eligibility_table[action]
+        if np.abs(td_error) > 1e-4:
+            self.q_value_table[action] += self.learning_rate * td_error * self.eligibility_table[action]
+        # post update
+        if self.n0:
+            self.state_visits[state] += 1

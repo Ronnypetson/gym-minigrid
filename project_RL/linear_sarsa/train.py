@@ -1,8 +1,11 @@
+from project_RL.plot import plot
 from project_RL.linear_sarsa.sarsa_lambda_agent import LinearSarsaLambda
 from gym_minigrid.wrappers import *
-from time import time
-from project_RL.linear_sarsa.parsing import parse_observation_to_state
-from matplotlib import pyplot as plt
+from datetime import datetime as dt
+from project_RL.play import play
+from project_RL.linear_parsing import parse_observation_to_state
+import dill
+import pickle
 
 
 def train(env, hyperparameters, num_episodes=int(1e2)):
@@ -13,20 +16,21 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
             - env_name
             - discount_rate
             - learning_rate
-            - epsilon
             - lambda
+            - n0 (initial exploration rate, it decays as the number of visits to a state increases)
     """
-    agent = LinearSarsaLambda(env,
-                              hyperparameters['discount_rate'],
-                              hyperparameters['initial_learning_rate'],
-                              hyperparameters['epsilon'],
-                              hyperparameters['lambda'],
-                              hyperparameters['n0'])
+    agent = LinearSarsaLambda(env, hyperparameters['discount_rate'],
+                            hyperparameters['learning_rate'],
+                            hyperparameters['epsilon'],
+                            hyperparameters['lambda'],
+                            hyperparameters['n0'])
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
-    log_filename = f'log_{env_name}_{time()}.csv'
+
+    log_filename = f'log_{env_name}_{dt.now().strftime("%y-%m-%d-%H-%M-%S")}.csv'
     with open(log_filename, 'a') as f:
+        f.write(f'hyperparameters_size,{hyperparameters.__len__()}\n')
         f.write('\n'.join(map(','.join, {str(key): str(value) for key, value in hyperparameters.items()}.items())))
         f.write('\n')
         # write csv header
@@ -34,8 +38,7 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
 
     # initialise variables for plotting purpose
     step = 0
-    all_rewards = []
-    all_means = []
+
     for episode in range(num_episodes):
         # reset environment before each episode
         total_reward = 0.0
@@ -57,67 +60,44 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
             action = next_action
 
             if done:
-                all_rewards.append(total_reward)
-                all_means.append(np.mean(all_rewards[-50:]))
-
-                if episode % 50 == 0:
-                    plt.plot(all_means, 'b.')
-                    plt.draw()
-                    plt.pause(0.0001)
-                    plt.clf()
-
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                # if episode % 100 == 99:
-                #     play(env, agent, log_filename)
+                if episode % 500 == 0:
+                    play(env, agent)
             step += 1
     env.close()
+
+    with open(f'agent_{log_filename[:-4]}.pickle', 'wb') as f:
+        dill.dump(agent, f, pickle.HIGHEST_PROTOCOL)
+
+    plot(log_filename[:-4])  # filename without extension
+
     return agent
-
-
-def play(env, agent, log_filename, episodes=1):
-    for episode in range(episodes):
-        # reset environment before each episode
-        observation = env.reset()
-        state = parse_observation_to_state(observation)
-        action = agent.get_new_action_greedly(state)
-        done = False
-        total_reward = 0
-
-        env.render()
-        while not done:
-            observation, reward, done, info = env.step(action)
-            env.render()
-            next_state = parse_observation_to_state(observation)
-            total_reward += reward
-            action = agent.get_new_action_greedly(next_state)
-
-        # write result to csv log
-        with open(log_filename, 'a') as f:
-            f.write(f'-1,-1,{total_reward},{agent.q_value_table.__len__()}\n')
 
 
 if __name__ == '__main__':
     hyperparameters = {
         # 'env_name': 'MiniGrid-Empty-5x5-v0',
-        'env_name': 'MiniGrid-DoorKey-5x5-v0',
-        # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
+        # 'env_name': 'MiniGrid-DoorKey-8x8-v0',
+        'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
         # 'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
-        # 'env_name': 'Pong-ram-v0',
-        'discount_rate': 0.99,
-        'initial_learning_rate': 1e-2,
+        # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
+        'discount_rate': 0.9,
+        'learning_rate': 1e-3,
         'lambda': 0.9,
         'epsilon': 0.3,
-        'n0': 10
+        'n0': None
     }
 
     env = ReseedWrapper(gym.make(hyperparameters['env_name']))
-    plt.ion()
     agent = train(env, hyperparameters, num_episodes=int(2e3))
-    input()
-    play(env, agent, '')
+    # It looks like env.close() inside "train" frees all resources,
+    # requiring us to re-create the environment. Not closing it though 
+    # makes the subsequent "plot" call unusable.
+    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
+    play(env, agent, episodes=1)
