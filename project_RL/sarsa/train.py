@@ -3,6 +3,7 @@ from project_RL.sarsa.sarsa_lambda_agent import SarsaLambda
 from gym_minigrid.wrappers import *
 from datetime import datetime as dt
 from project_RL.play import play
+from project_RL.parsing import parse_observation_to_state
 import dill
 import pickle
 
@@ -61,7 +62,7 @@ def train(env, hyperparameters):
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
                 if episode % 100 == 0:
-                    play(env, agent)
+                    play(env, agent, parse_observation_to_state)
             step += 1
     env.close()
 
@@ -71,11 +72,6 @@ def train(env, hyperparameters):
     plot.plot(log_filename[:-4])  # filename without extension
 
     return agent
-
-
-def parse_observation_to_state(observation):
-    return tuple([tuple(observation["image"].flatten()),
-                  observation["direction"]])
 
 
 if __name__ == '__main__':

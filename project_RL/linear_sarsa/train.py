@@ -3,7 +3,7 @@ from project_RL.linear_sarsa.sarsa_lambda_agent import LinearSarsaLambda
 from gym_minigrid.wrappers import *
 from datetime import datetime as dt
 from project_RL.play import play
-from project_RL.linear_parsing import parse_observation_to_state
+from project_RL.parsing import linear_parse_observation_to_state
 import dill
 import pickle
 
@@ -45,13 +45,13 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
 
         agent.init_eligibility_table()
         observation = env.reset()
-        state = parse_observation_to_state(observation)
+        state = linear_parse_observation_to_state(observation)
         action = agent.get_new_action_e_greedly(state)
         done = False
 
         while not done:
             observation, reward, done, info = env.step(action)
-            next_state = parse_observation_to_state(observation)
+            next_state = linear_parse_observation_to_state(observation)
             total_reward += reward
             next_action = agent.get_new_action_e_greedly(next_state)
             agent.update(state, action, reward, next_state, next_action, done)
@@ -63,7 +63,7 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
                 if episode % 500 == 0:
-                    play(env, agent)
+                    play(env, agent, linear_parse_observation_to_state)
             step += 1
     env.close()
 

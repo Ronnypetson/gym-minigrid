@@ -1,7 +1,6 @@
 import os
 import dill
 from gym_minigrid.wrappers import *
-from project_RL.linear_parsing import parse_observation_to_state
 
 
 def load_agent(agent_filename, env_name):
@@ -12,11 +11,11 @@ def load_agent(agent_filename, env_name):
         play(env, agent, 100)
 
 
-def play(env, agent, episodes=1):
+def play(env, agent, observation_parser, episodes=1):
     for episode in range(episodes):
         # reset environment before each episode
         observation = env.reset()
-        state = parse_observation_to_state(observation)
+        state = observation_parser(observation)
         action = agent.get_new_action_greedly(state)
         done = False
         total_reward = 0
@@ -25,7 +24,7 @@ def play(env, agent, episodes=1):
         while not done:
             observation, reward, done, info = env.step(action)
             env.render()
-            next_state = parse_observation_to_state(observation)
+            next_state = observation_parser(observation)
             total_reward += reward
             action = agent.get_new_action_greedly(next_state)
 
