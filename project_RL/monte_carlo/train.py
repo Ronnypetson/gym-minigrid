@@ -1,4 +1,6 @@
 from project_RL.monte_carlo.monte_carlo_agent import MonteCarlo
+from project_RL.parsing import parse_observation_to_state
+from project_RL.play import play
 from gym_minigrid.wrappers import *
 from time import time
 
@@ -57,39 +59,12 @@ def train(env, hyperparameters):
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
                 if episode % 100 == 0 and episode !=0:
                     print(f'episode {episode}')
-                    play(env, agent, log_filename)
+                    play(env, agent, parse_observation_to_state)
             step += 1
 
         agent.update(states, actions, rewards)
     env.close()
     return agent
-
-
-def parse_observation_to_state(observation):
-    return tuple([tuple(observation["image"].flatten()),
-                  observation["direction"]])
-
-
-def play(env, agent, log_filename, episodes=1):
-    for episode in range(episodes):
-        # reset environment before each episode
-        observation = env.reset()
-        state = parse_observation_to_state(observation)
-        action = agent.get_new_action_greedly(state)
-        done = False
-        total_reward = 0
-
-        env.render()
-        while not done:
-            observation, reward, done, info = env.step(action)
-            env.render()
-            next_state = parse_observation_to_state(observation)
-            total_reward += reward
-            action = agent.get_new_action_greedly(next_state)
-
-        # write result to csv log
-        with open(log_filename, 'a') as f:
-            f.write(f'-1,-1,{total_reward},{agent.q_value_table.__len__()}\n')
 
 
 if __name__ == '__main__':
