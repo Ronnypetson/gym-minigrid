@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from collections import defaultdict as dd
-from project_RL.linear_parsing import parse_observation_to_state
+from project_RL.parsing import linear_parse_observation_to_state
 
 
 class LinearSarsaLambda:
@@ -19,7 +19,7 @@ class LinearSarsaLambda:
                  n0=None):
         self.action_size = env.action_space.n
         observation = env.reset()
-        state = parse_observation_to_state(observation)
+        state = linear_parse_observation_to_state(observation)
         self.num_features = len(state)
         self.epsilon = epsilon
         self.discount_rate = discount_rate

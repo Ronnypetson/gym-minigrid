@@ -100,4 +100,4 @@ if __name__ == '__main__':
     # requiring us to re-create the environment. Not closing it though 
     # makes the subsequent "plot" call unusable.
     env = ReseedWrapper(gym.make(hyperparameters['env_name']))
-    play(env, agent, episodes=1)
+    play(env, agent, linear_parse_observation_to_state, episodes=1)
