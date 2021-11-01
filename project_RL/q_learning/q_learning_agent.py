@@ -67,8 +67,10 @@ class QLearning:
     def update(self, state, action, reward, new_state, new_action, done):
         """Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
-
         """
+        #pre update
+        self.visited_state_action[state][action] +=1
+
         # import pdb; pdb.set_trace()
         q_value_state_s = self.q_value_table[state]
         q_value_new_state = self.q_value_table[new_state]
