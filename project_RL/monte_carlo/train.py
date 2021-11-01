@@ -13,7 +13,7 @@ def train(env, hyperparameters):
             - env_name
             - n zero value
     """
-    agent = MonteCarlo(env, hyperparameters['n_zero'])
+    agent = MonteCarlo(env, hyperparameters['n_zero'], hyperparameters['discount_rate'])
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
@@ -78,7 +78,8 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-6x6-v0',
-        'n_zero': 7
+        'n_zero': 2500,
+        'discount_rate': 0.9
     }
 
     env = gym.make(hyperparameters['env_name'])

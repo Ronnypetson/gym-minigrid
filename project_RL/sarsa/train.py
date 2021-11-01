@@ -14,13 +14,11 @@ def train(env, hyperparameters):
     Arguments:
         hyperparameters dictionary containing:
             - env_name
-            - discount_rate
             - learning_rate
             - lambda
             - n0 (initial exploration rate, it decays as the number of visits to a state increases)
     """
     agent = SarsaLambda(env, hyperparameters['discount_rate'],
-                        hyperparameters['learning_rate'],
                         hyperparameters['lambda'],
                         hyperparameters['n0'])
 
@@ -87,9 +85,8 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
         'discount_rate': 0.9,
-        'learning_rate': 0.01,
         'lambda': 0.9,
-        'n0': 3
+        'n0': 2500
     }
 
     env = gym.make(hyperparameters['env_name'])

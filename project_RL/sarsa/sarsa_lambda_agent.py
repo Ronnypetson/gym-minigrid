@@ -9,11 +9,10 @@ class SarsaLambda:
     It converges to the optimal action-value function.
     """
 
-    def __init__(self, env, discount_rate=0.9, learning_rate=0.1, lambda_param=0.8, n0=3):
+    def __init__(self, env, discount_rate=0.9, lambda_param=0.8, n0=3):
         self.action_size = env.action_space.n
         self.n0 = n0
         self.discount_rate = discount_rate
-        self.learning_rate = learning_rate
         self.lambda_param = lambda_param
         self.__init_q_value_table()
         self.__init_state_visits_table()

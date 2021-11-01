@@ -20,7 +20,6 @@ def train(env, hyperparameters):
             - n0 (initial exploration rate, it decays as the number of visits to a state increases)
     """
     agent = QLearning(env, hyperparameters['discount_rate'],
-                        hyperparameters['learning_rate'],
                         hyperparameters['n0'])
 
     # create log file, add hyperparameters into it
@@ -84,8 +83,7 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
         'discount_rate': 0.9,
-        'learning_rate': 1,
-        'n0': 23
+        'n0': 2500
     }
 
     env = (gym.make(hyperparameters['env_name']))

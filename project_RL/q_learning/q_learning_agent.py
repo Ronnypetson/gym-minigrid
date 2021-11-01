@@ -12,14 +12,13 @@ class QLearning:
     def __init__(self,
                  env,
                  discount_rate=0.9,
-                 learning_rate=0.1,
                  n0=3):
         self.action_size = env.action_space.n
         self.n0 = n0
         self.discount_rate = discount_rate
-        self.learning_rate = learning_rate
         self.__init_q_value_table()
         self.__init_state_visits_table()
+        self.init_visited_state_action()
 
     def __init_q_value_table(self):
         """Creates q_value_table as a dictionary.
@@ -35,6 +34,12 @@ class QLearning:
         It stores how many times each state was visited while the agent is trained.
         """
         self.state_visits = dd(lambda: 0)
+        
+    def init_visited_state_action(self):
+        """Initialise eligibility trace table with zeros.
+        Its first dimension is the state size and the second dimension is the action size.
+        """
+        self.visited_state_action = dd(lambda: dd(int))
 
     def get_new_action_e_greedly(self, state):
         """With probability 1 - epsilon choose the greedy action.
@@ -72,7 +77,7 @@ class QLearning:
         ''' TODO: Checar essa condição.
         '''
         if np.abs(td_error) > 1e-4:
-            self.q_value_table[state][action] += self.learning_rate * td_error
+            self.q_value_table[state][action] += (1/self.visited_state_action[state][action]) * td_error
 
         # post update
         self.state_visits[state] += 1
