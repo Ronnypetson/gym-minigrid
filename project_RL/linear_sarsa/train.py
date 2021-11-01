@@ -1,14 +1,14 @@
-from project_RL import plot
-from project_RL.sarsa.sarsa_lambda_agent import SarsaLambda
+from project_RL.plot import plot
+from project_RL.linear_sarsa.sarsa_lambda_agent import LinearSarsaLambda
 from gym_minigrid.wrappers import *
 from datetime import datetime as dt
 from project_RL.play import play
-from project_RL.parsing import parse_observation_to_state
+from project_RL.parsing import linear_parse_observation_to_state
 import dill
 import pickle
 
 
-def train(env, hyperparameters):
+def train(env, hyperparameters, num_episodes=int(1e2)):
     """ Train a sarsa lambda agent in the requested environment
 
     Arguments:
@@ -19,10 +19,11 @@ def train(env, hyperparameters):
             - lambda
             - n0 (initial exploration rate, it decays as the number of visits to a state increases)
     """
-    agent = SarsaLambda(env, hyperparameters['discount_rate'],
-                        hyperparameters['learning_rate'],
-                        hyperparameters['lambda'],
-                        hyperparameters['n0'])
+    agent = LinearSarsaLambda(env, hyperparameters['discount_rate'],
+                            hyperparameters['learning_rate'],
+                            hyperparameters['epsilon'],
+                            hyperparameters['lambda'],
+                            hyperparameters['n0'])
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
@@ -38,19 +39,19 @@ def train(env, hyperparameters):
     # initialise variables for plotting purpose
     step = 0
 
-    for episode in range(int(1e4)):
+    for episode in range(num_episodes):
         # reset environment before each episode
         total_reward = 0.0
 
         agent.init_eligibility_table()
         observation = env.reset()
-        state = parse_observation_to_state(observation)
+        state = linear_parse_observation_to_state(observation)
         action = agent.get_new_action_e_greedly(state)
         done = False
 
         while not done:
             observation, reward, done, info = env.step(action)
-            next_state = parse_observation_to_state(observation)
+            next_state = linear_parse_observation_to_state(observation)
             total_reward += reward
             next_action = agent.get_new_action_e_greedly(next_state)
             agent.update(state, action, reward, next_state, next_action, done)
@@ -61,15 +62,15 @@ def train(env, hyperparameters):
             if done:
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 100 == 0:
-                    play(env, agent, parse_observation_to_state)
+                if episode % 500 == 0:
+                    play(env, agent, linear_parse_observation_to_state)
             step += 1
     env.close()
 
     with open(f'agent_{log_filename[:-4]}.pickle', 'wb') as f:
         dill.dump(agent, f, pickle.HIGHEST_PROTOCOL)
 
-    plot.plot(log_filename[:-4])  # filename without extension
+    plot(log_filename[:-4])  # filename without extension
 
     return agent
 
@@ -87,10 +88,16 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
         'discount_rate': 0.9,
-        'learning_rate': 0.01,
+        'learning_rate': 1e-3,
         'lambda': 0.9,
-        'n0': 3
+        'epsilon': 0.3,
+        'n0': None
     }
 
-    env = gym.make(hyperparameters['env_name'])
-    agent = train(env, hyperparameters)
+    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
+    agent = train(env, hyperparameters, num_episodes=int(2e3))
+    # It looks like env.close() inside "train" frees all resources,
+    # requiring us to re-create the environment. Not closing it though 
+    # makes the subsequent "plot" call unusable.
+    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
+    play(env, agent, linear_parse_observation_to_state, episodes=1)
