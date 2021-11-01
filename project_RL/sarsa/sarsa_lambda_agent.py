@@ -17,6 +17,7 @@ class SarsaLambda:
         self.lambda_param = lambda_param
         self.__init_q_value_table()
         self.__init_state_visits_table()
+        self.init_visited_state_action()
 
     def __init_q_value_table(self):
         """Creates q_value_table as a dictionary.
@@ -49,6 +50,12 @@ class SarsaLambda:
             return random.choice(range(self.action_size))
         else:
             return self.get_new_action_greedly(state)
+            
+    def init_visited_state_action(self):
+        """Initialise eligibility trace table with zeros.
+        Its first dimension is the state size and the second dimension is the action size.
+        """
+        self.visited_state_action = dd(lambda: dd(int))
 
     def get_new_action_greedly(self, state):
         """With probability 1.0 choose the greedy action.
@@ -65,6 +72,9 @@ class SarsaLambda:
         in proportion to TD-error and eligibility trace
 
         """
+        #pre update
+        self.visited_state_action[state][action] +=1
+
         q_value_state_s = self.q_value_table[state]
         q_value_new_state = self.q_value_table[new_state]
         td_error = reward + self.discount_rate * q_value_new_state[new_action] - q_value_state_s[action]
@@ -73,7 +83,7 @@ class SarsaLambda:
         if np.abs(td_error) > 1e-4:
             for state in self.eligibility_table.keys():
                 for action in self.eligibility_table[state].keys():
-                    self.q_value_table[state][action] += self.learning_rate * td_error * self.eligibility_table[state][action]
+                    self.q_value_table[state][action] += (1/self.visited_state_action[state][action]) * td_error * self.eligibility_table[state][action]
                     self.eligibility_table[state][action] = self.discount_rate * self.lambda_param * self.eligibility_table[state][action]
 
         # post update
