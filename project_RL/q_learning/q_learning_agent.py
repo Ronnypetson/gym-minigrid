@@ -67,8 +67,7 @@ class QLearning:
         # import pdb; pdb.set_trace()
         q_value_state_s = self.q_value_table[state]
         q_value_new_state = self.q_value_table[new_state]
-        arg_max = max(q_value_new_state)
-        td_error = reward + self.discount_rate * q_value_new_state[arg_max] - q_value_state_s[action]
+        td_error = reward + (self.discount_rate * max(q_value_new_state.values())) - q_value_state_s[action]
 
         ''' TODO: Checar essa condição.
         '''

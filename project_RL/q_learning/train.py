@@ -50,12 +50,11 @@ def train(env, hyperparameters):
             observation, reward, done, info = env.step(action)
             next_state = parse_observation_to_state(observation)
             total_reward += reward
-            next_action = agent.get_new_action_e_greedly(next_state)
-            agent.update(state, action, reward, next_state, next_action, done)
+            agent.update(state, action, reward, next_state, None, done)
 
             state = next_state
-            action = next_action
-
+            action = agent.get_new_action_e_greedly(next_state)
+        
             if done:
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
@@ -79,15 +78,15 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
-        'env_name': 'MiniGrid-LavaGapS5-v0',
+        # 'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
-        # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
+        'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
         'discount_rate': 0.9,
-        'learning_rate': 0.1,
-        'n0': 5
+        'learning_rate': 1,
+        'n0': 23
     }
 
-    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
+    env = (gym.make(hyperparameters['env_name']))
     agent = train(env, hyperparameters)
