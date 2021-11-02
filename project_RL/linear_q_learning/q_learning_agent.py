@@ -14,7 +14,8 @@ class LinearQLearning:
                  env,
                  discount_rate=0.9,
                  learning_rate=1e-3,
-                 n0=3):
+                 n0=3,
+                 min_eps=0.3):
         self.action_size = env.action_space.n
         observation = env.reset()
         state = linear_parse_observation_to_state(observation)
@@ -22,6 +23,7 @@ class LinearQLearning:
         self.learning_rate = learning_rate
         self.n0 = n0
         self.discount_rate = discount_rate
+        self.min_eps = min_eps
         self.__init_q_value_table()
         self.__init_state_visits_table()
         self.init_visited_state_action()
@@ -54,7 +56,7 @@ class LinearQLearning:
         """
         _state = tuple(state.tolist())
         eps = self.n0 / (self.n0 + self.state_visits[_state])
-        eps = max(eps, 0.3)
+        eps = max(eps, self.min_eps)
         if random.random() < eps:
             return random.choice(range(self.action_size))
         else:
