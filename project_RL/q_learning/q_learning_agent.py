@@ -4,7 +4,7 @@ from collections import defaultdict as dd
 
 
 class QLearning:
-    """Sarsa Lambda Algorithm exploits and explores an environment.
+    """QLearning Algorithm exploits and explores an environment.
     It learns the state action value of each state and action pair.
     It converges to the optimal action-value function.
     """
@@ -58,8 +58,6 @@ class QLearning:
         Uses a random selection of actions whenever you have a draw among actions.
 
         """
-        ''' TODO: depurar os NaNs na q_value_table
-        '''
         max_value = max(self.q_value_table[state].values())
         max_actions = [i for i, x in self.q_value_table[state].items() if x == max_value]
         return random.choice(max_actions)
@@ -71,7 +69,6 @@ class QLearning:
         #pre update
         self.visited_state_action[state][action] +=1
 
-        # import pdb; pdb.set_trace()
         q_value_state_s = self.q_value_table[state]
         q_value_new_state = self.q_value_table[new_state]
         td_error = reward + (self.discount_rate * max(q_value_new_state.values())) - q_value_state_s[action]

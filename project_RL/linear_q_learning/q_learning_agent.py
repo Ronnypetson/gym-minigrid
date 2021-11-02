@@ -5,7 +5,7 @@ from project_RL.parsing import linear_parse_observation_to_state
 
 
 class LinearQLearning:
-    """Sarsa Lambda Algorithm exploits and explores an environment.
+    """Linear Approximator Q-Learning Algorithm exploits and explores an environment.
     It learns the state action value of each state and action pair.
     It converges to the optimal action-value function.
     """
@@ -26,7 +26,6 @@ class LinearQLearning:
         self.min_eps = min_eps
         self.__init_q_value_table()
         self.__init_state_visits_table()
-        self.init_visited_state_action()
 
     def __init_q_value_table(self):
         """Creates q_value_table as a dictionary.
@@ -42,12 +41,6 @@ class LinearQLearning:
         It stores how many times each state was visited while the agent is trained.
         """
         self.state_visits = dd(lambda: 0)
-
-    def init_visited_state_action(self):
-        """Initialise eligibility trace table with zeros.
-        Its first dimension is the state size and the second dimension is the action size.
-        """
-        self.visited_state_action = dd(lambda: dd(int))
 
     def get_new_action_e_greedly(self, state):
         """With probability 1 - epsilon choose the greedy action.
