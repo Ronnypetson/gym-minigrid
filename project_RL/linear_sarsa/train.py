@@ -8,7 +8,7 @@ import dill
 import pickle
 
 
-def train(env, hyperparameters, num_episodes=int(1e2)):
+def train(env, hyperparameters, num_episodes=int(1e2), call_play=False):
     """ Train a sarsa lambda agent in the requested environment
 
     Arguments:
@@ -34,7 +34,7 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
         f.write('\n'.join(map(','.join, {str(key): str(value) for key, value in hyperparameters.items()}.items())))
         f.write('\n')
         # write csv header
-        f.write('Episode,Step,Total Reward,q_value_table_length\n')
+        f.write('Episode,Step,Total Reward,q_value_table_length,visited_states\n')
 
     # initialise variables for plotting purpose
     step = 0
@@ -61,8 +61,8 @@ def train(env, hyperparameters, num_episodes=int(1e2)):
 
             if done:
                 with open(log_filename, 'a') as f:
-                    f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 500 == 0:
+                    f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()},{agent.state_visits.__len__()}\n')
+                if episode % 1000 == 0 and call_play:
                     play(env, agent, linear_parse_observation_to_state)
             step += 1
     env.close()
@@ -79,25 +79,25 @@ if __name__ == '__main__':
     hyperparameters = {
         # 'env_name': 'MiniGrid-Empty-5x5-v0',
         # 'env_name': 'MiniGrid-DoorKey-8x8-v0',
-        'env_name': 'MiniGrid-Empty-Random-6x6-v0',
+        # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
         # 'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
-        # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
+        'env_name': 'MiniGrid-DoorKeyObst-6x6-v0',
         'discount_rate': 0.9,
         'learning_rate': 1e-3,
-        'lambda': 0.9,
+        'lambda': 1,
         'epsilon': 0.3,
-        'n0': None
+        'n0': 2500
     }
 
-    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
-    agent = train(env, hyperparameters, num_episodes=int(2e3))
+    env = gym.make(hyperparameters['env_name'])
+    agent = train(env, hyperparameters, num_episodes=int(2e5), call_play=False)
     # It looks like env.close() inside "train" frees all resources,
     # requiring us to re-create the environment. Not closing it though 
     # makes the subsequent "plot" call unusable.
-    env = ReseedWrapper(gym.make(hyperparameters['env_name']))
-    play(env, agent, linear_parse_observation_to_state, episodes=1)
+    # env = gym.make(hyperparameters['env_name'])
+    # play(env, agent, linear_parse_observation_to_state, episodes=1)

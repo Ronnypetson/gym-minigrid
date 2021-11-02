@@ -8,7 +8,7 @@ import dill
 import pickle
 
 
-def train(env, hyperparameters):
+def train(env, hyperparameters, num_episodes=int(2e5), call_play=False):
     """ Train a sarsa lambda agent in the requested environment
 
     Arguments:
@@ -36,7 +36,7 @@ def train(env, hyperparameters):
     # initialise variables for plotting purpose
     step = 0
 
-    for episode in range(int(1e4)):
+    for episode in range(num_episodes):
         # reset environment before each episode
         total_reward = 0.0
 
@@ -59,7 +59,7 @@ def train(env, hyperparameters):
             if done:
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 100 == 0:
+                if episode % 1000 == 0 and call_play:
                     play(env, agent, parse_observation_to_state)
             step += 1
     env.close()
@@ -76,18 +76,18 @@ if __name__ == '__main__':
     hyperparameters = {
         # 'env_name': 'MiniGrid-Empty-5x5-v0',
         # 'env_name': 'MiniGrid-DoorKey-8x8-v0',
-        'env_name': 'MiniGrid-Empty-Random-6x6-v0',
+        # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
         # 'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
-        # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
+        'env_name': 'MiniGrid-DoorKeyObst-6x6-v0',
         'discount_rate': 0.9,
-        'lambda': 0.9,
+        'lambda': 1,
         'n0': 2500
     }
 
     env = gym.make(hyperparameters['env_name'])
-    agent = train(env, hyperparameters)
+    agent = train(env, hyperparameters, num_episodes=int(2e5), call_play=False)

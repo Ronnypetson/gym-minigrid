@@ -92,4 +92,4 @@ class LinearSarsaLambda:
             self.q_value_table[action] += self.learning_rate * td_error * self.eligibility_table[action]
         # post update
         if self.n0:
-            self.state_visits[state] += 1
+            self.state_visits[tuple(state.tolist())] += 1
