@@ -15,7 +15,9 @@ def train(env, hyperparameters):
     """
     agent = LinearMonteCarlo(env,
                              hyperparameters['learning_rate'],
-                             hyperparameters['n_zero'])
+                             hyperparameters['n_zero'],
+                             hyperparameters['gamma'],
+                             hyperparameters['min_eps'])
 
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
@@ -58,7 +60,7 @@ def train(env, hyperparameters):
             if done:
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 500 == 0 and episode != 0:
+                if episode % 100 == 0 and episode != 0:
                     print(f'episode {episode}')
                     play(env, agent, linear_parse_observation_to_state)
             step += 1
@@ -70,17 +72,19 @@ def train(env, hyperparameters):
 
 if __name__ == '__main__':
     hyperparameters = {
-        # 'env_name': 'MiniGrid-Empty-8x8-v0',
+        # 'env_name': 'MiniGrid-Empty-5x5-v0',
         # 'env_name': 'MiniGrid-DoorKey-5x5-v0',
         # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
-        'env_name': 'MiniGrid-DistShift1-v0',
-        # 'env_name': 'MiniGrid-LavaGapS5-v0',
+        # 'env_name': 'MiniGrid-DistShift1-v0',
+        'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-6x6-v0',
-        'n_zero': 30,
+        'n_zero': 1,
         'learning_rate': 1e-3,
+        'gamma': 0.99,
+        'min_eps': 0.3
     }
 
     env = gym.make(hyperparameters['env_name'])

@@ -10,7 +10,8 @@ class LinearMonteCarlo:
                  env,
                  learning_rate=1e-3,
                  n_zero=7,
-                 gamma=0.9):
+                 gamma=0.9,
+                 min_eps=0.3):
         self.action_size = env.action_space.n
         self.learning_rate = learning_rate
         observation = env.reset()
@@ -18,6 +19,7 @@ class LinearMonteCarlo:
         self.num_features = len(state)
         self.gamma = gamma
         self.n_zero = n_zero
+        self.min_eps = min_eps
         self.init_q_value_table()
         self.init_visited_states()
         self.init_visited_state_action()
@@ -50,6 +52,7 @@ class LinearMonteCarlo:
         With probability epsilon choose random action.
         """
         eps = self.get_epsilon(state)
+        eps = max(self.min_eps, eps)
         rnd = random.random()
         if rnd < eps:
             action = random.choice(range(self.action_size))
@@ -57,7 +60,7 @@ class LinearMonteCarlo:
         else:
             action = self.get_new_action_greedly(state)
             return action
-    
+
     def get_new_action_greedly(self, state):
         """With probability 1.0 choose the greedy action.
         With probability 0.0 choose random action.
@@ -69,7 +72,7 @@ class LinearMonteCarlo:
         return random.choice(max_actions)
 
     def update(self, states, actions, rewards):
-        ''' Diga podi crê omi
+        ''' 
         '''
         states = states[::-1]
         actions = actions[::-1]
@@ -78,7 +81,8 @@ class LinearMonteCarlo:
         for state, action, reward in zip(states, actions, rewards):
             g = g * self.gamma + reward
             _state = tuple(state.tolist())
-            self.visited_state_action[_state][action] += 1
+            # self.visited_state_action[_state][action] += 1
             self.visited_states[_state] += 1
-            lr = self.learning_rate * (1 / self.visited_state_action[_state][action])
-            self.q_value_table[action] += lr * (g - self.q_value_table[action] @ state) * state
+            # lr = self.learning_rate * (1 / self.visited_state_action[_state][action])
+            # print(lr)
+            self.q_value_table[action] += self.learning_rate * (g - self.q_value_table[action] @ state) * state

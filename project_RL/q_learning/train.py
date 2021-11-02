@@ -1,5 +1,5 @@
 from project_RL import plot
-from project_RL.sarsa.sarsa_lambda_agent import SarsaLambda
+from project_RL.q_learning.q_learning_agent import QLearning
 from gym_minigrid.wrappers import *
 from datetime import datetime as dt
 from project_RL.play import play
@@ -14,12 +14,12 @@ def train(env, hyperparameters):
     Arguments:
         hyperparameters dictionary containing:
             - env_name
+            - discount_rate
             - learning_rate
             - lambda
             - n0 (initial exploration rate, it decays as the number of visits to a state increases)
     """
-    agent = SarsaLambda(env, hyperparameters['discount_rate'],
-                        hyperparameters['lambda'],
+    agent = QLearning(env, hyperparameters['discount_rate'],
                         hyperparameters['n0'])
 
     # create log file, add hyperparameters into it
@@ -36,11 +36,10 @@ def train(env, hyperparameters):
     # initialise variables for plotting purpose
     step = 0
 
-    for episode in range(int(1e4)):
+    for episode in range(int(5e3)):
         # reset environment before each episode
         total_reward = 0.0
 
-        agent.init_eligibility_table()
         observation = env.reset()
         state = parse_observation_to_state(observation)
         action = agent.get_new_action_e_greedly(state)
@@ -50,16 +49,15 @@ def train(env, hyperparameters):
             observation, reward, done, info = env.step(action)
             next_state = parse_observation_to_state(observation)
             total_reward += reward
-            next_action = agent.get_new_action_e_greedly(next_state)
-            agent.update(state, action, reward, next_state, next_action, done)
+            agent.update(state, action, reward, next_state, None, done)
 
             state = next_state
-            action = next_action
-
+            action = agent.get_new_action_e_greedly(next_state)
+        
             if done:
                 with open(log_filename, 'a') as f:
                     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 100 == 0:
+                if episode % 1000 == 0:
                     play(env, agent, parse_observation_to_state)
             step += 1
     env.close()
@@ -76,18 +74,17 @@ if __name__ == '__main__':
     hyperparameters = {
         # 'env_name': 'MiniGrid-Empty-5x5-v0',
         # 'env_name': 'MiniGrid-DoorKey-8x8-v0',
-        'env_name': 'MiniGrid-Empty-Random-6x6-v0',
+        # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
         # 'env_name': 'MiniGrid-DistShift1-v0',
         # 'env_name': 'MiniGrid-LavaGapS5-v0',
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
-        # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
+        'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
         'discount_rate': 0.9,
-        'lambda': 0.9,
         'n0': 2500
     }
 
-    env = gym.make(hyperparameters['env_name'])
+    env = (gym.make(hyperparameters['env_name']))
     agent = train(env, hyperparameters)
