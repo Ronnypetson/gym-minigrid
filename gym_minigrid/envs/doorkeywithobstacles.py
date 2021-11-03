@@ -20,7 +20,7 @@ class DoorKeyObstEnv(MiniGridEnv):
 
         super().__init__(
             grid_size=size,
-            max_steps=10 * size * size
+            max_steps=5 * size * size
         )
 
         # Only 5 actions permitted: left, right, forward, pickup, tooggle
