@@ -27,13 +27,16 @@ def linear_parse_observation_to_state(observation):
     return binary_features
 
 
-def image_parse_observation_to_state(observation):
+def image_parse_observation_to_state(
+    env,
+    observation
+    ):
     """ Parse encoded observation to image format,
         oriented by the agent's direction.
     """
-    img = observation['agent_fov_img']
+    img = env.get_obs_render(observation['image'])
     direction = observation['direction']
-    img = np.rot90(img, k=direction, axes=(1, 0))
+    img = np.rot90(img, k=direction + 1, axes=(1, 0))
     return img
 
 
