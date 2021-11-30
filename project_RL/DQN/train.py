@@ -69,7 +69,7 @@ def train(
             if done:
                 # with open(log_filename, 'a') as f:
                 #     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 100 == 99:
+                if episode % 100 == 1:
                     play(
                         env,
                         agent,
