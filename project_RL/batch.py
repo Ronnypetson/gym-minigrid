@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 from types import FunctionType
 import torch
 import numpy as np
@@ -13,7 +13,9 @@ def np2tensor(
     '''
     if make_batch:
         x = x[None, :]
-    x = torch.from_numpy(x, requires_grad=False).float()
+    x = torch.from_numpy(x).float()
+    # Make channel dimension
+    x = x.unsqueeze(1)
     return x
 
 
@@ -24,8 +26,31 @@ def resize_range(
     ):
     ''' Converts values from min_val - max_val to 0 - 1 interval.
     '''
+    assert max_val > min_val
     x = (x - min_val) / (max_val - min_val)
     return x
+
+
+def experience2batches(
+    exp: List[Tuple]
+    ):
+    ''' Unpacks a experiences into batch tensors.
+    '''
+    state = []
+    action = []
+    reward = []
+    new_state = []
+    for s, a, r, s_ in exp:
+        state.append(s)
+        action.append(a)
+        reward.append(r)
+        new_state.append(s_)
+    state = torch.cat(state, dim=0)
+    new_state = torch.cat(new_state, dim=0)
+    action = torch.tensor(action)
+    reward = torch.cat(reward, dim=0)
+    assert len(state) == len(new_state) == len(reward) == len(action)
+    return state, action, reward, new_state
 
 
 class NumpyArrayTransform:
