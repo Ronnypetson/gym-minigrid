@@ -13,7 +13,7 @@ from matplotlib import pyplot as plt
 def train(
     env,
     hyperparameters,
-    num_episodes=int(1e4)
+    num_episodes=int(1e2)
     ):
     """ Train a sarsa lambda agent in the requested environment
 
@@ -36,13 +36,13 @@ def train(
     # create log file, add hyperparameters into it
     env_name = hyperparameters['env_name']
 
-    # log_filename = f'log_{env_name}_{dt.now().strftime("%y-%m-%d-%H-%M-%S")}.csv'
-    # with open(log_filename, 'a') as f:
-    #     f.write(f'hyperparameters_size,{hyperparameters.__len__()}\n')
-    #     f.write('\n'.join(map(','.join, {str(key): str(value) for key, value in hyperparameters.items()}.items())))
-    #     f.write('\n')
-    #     # write csv header
-    #     f.write('Episode,Step,Total Reward,q_value_table_length\n')
+    log_filename = f'log_{env_name}_{dt.now().strftime("%y-%m-%d-%H-%M-%S")}.csv'
+    with open(log_filename, 'a') as f:
+        f.write(f'hyperparameters_size,{hyperparameters.__len__()}\n')
+        f.write('\n'.join(map(','.join, {str(key): str(value) for key, value in hyperparameters.items()}.items())))
+        f.write('\n')
+        # write csv header
+        f.write('Episode,Step,Total Reward,q_value_table_length\n')
 
     # initialise variables for plotting purpose
     step = 0
@@ -67,21 +67,21 @@ def train(
             action = agent.get_new_action_e_greedly(next_state)
 
             if done:
-                # with open(log_filename, 'a') as f:
-                #     f.write(f'{episode},{step},{total_reward},{agent.q_value_table.__len__()}\n')
-                if episode % 100 == 1:
-                    play(
-                        env,
-                        agent,
-                        lambda x: image_parse_observation_to_state(env, x)
-                    )
+                with open(log_filename, 'a') as f:
+                    f.write(f'{episode},{step},{total_reward},{0}\n')
+                # if episode % 100 == 0:
+                #     play(
+                #         env,
+                #         agent,
+                #         lambda x: image_parse_observation_to_state(env, x)
+                #     )
             step += 1
     env.close()
 
-    # with open(f'agent_{log_filename[:-4]}.pickle', 'wb') as f:
-    #     dill.dump(agent, f, pickle.HIGHEST_PROTOCOL)
+    with open(f'agent_{log_filename[:-4]}.pickle', 'wb') as f:
+        dill.dump(agent, f, pickle.HIGHEST_PROTOCOL)
 
-    # plot.plot(log_filename[:-4])  # filename without extension
+    plot.plot(log_filename[:-4])  # filename without extension
 
     return agent
 
@@ -105,4 +105,8 @@ if __name__ == '__main__':
     }
 
     env = gym.make(hyperparameters['env_name'])
-    agent = train(env, hyperparameters)
+    agent = train(
+        env,
+        hyperparameters,
+        num_episodes=100
+    )

@@ -24,9 +24,9 @@ class DQNAgent(BaseAgent):
         learning_rate=1e-3,
         n0=3,
         min_eps=0.3,
-        min_replay_size=256,
+        min_replay_size=512,
         max_replay_size=1024,
-        batch_size=4
+        batch_size=8
     ):
         self.action_size = env.action_space.n
         # observation = env.reset()
@@ -43,9 +43,9 @@ class DQNAgent(BaseAgent):
         self._transforms = NumpyArrayTransform(
             [
                 resize_range,
-                lambda x: x.mean(axis=-1),
                 lambda x: x[::aspect_reduction, ::aspect_reduction],
-                lambda x: np2tensor(x, True)
+                lambda x: np2tensor(x, True),
+                lambda x: x.permute(0, 3, 1, 2)
             ]
         )
         self.min_replay_size = min_replay_size
@@ -85,6 +85,7 @@ class DQNAgent(BaseAgent):
         batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
         batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
         state, action, reward, new_state = experience2batches(batch_exp)
+        # Run one backpropagation step
         self.opt.zero_grad()
         q_value = self.q_net(state)
         new_q_value = self.q_net(new_state)

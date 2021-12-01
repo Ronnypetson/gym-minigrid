@@ -14,8 +14,6 @@ def np2tensor(
     if make_batch:
         x = x[None, :]
     x = torch.from_numpy(x).float()
-    # Make channel dimension
-    x = x.unsqueeze(1)
     return x
 
 
