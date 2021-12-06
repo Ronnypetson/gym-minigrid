@@ -35,6 +35,7 @@ class DQNAgent(BaseAgent):
         self.discount_rate = discount_rate
         self.min_eps = min_eps
         self.visited_states = dd(int)
+        self.visited_experience = set()
         aspect_reduction = 2
         original_size = 112
         self.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -83,6 +84,19 @@ class DQNAgent(BaseAgent):
         else:
             return self.n0 / (self.n0 + self.visited_states[state])
 
+    def _get_exp_hash(
+        self,
+        state: np.ndarray,
+        action: int,
+        reward: float,
+        done: bool
+        ):
+        ''' Returns the hash of a experience tuple (state, action, reward, done)
+        '''
+        state.flags.writeable = False
+        experience = hash((state.data.tobytes(), action, reward, done))
+        return experience
+
     def get_new_action_e_greedly(
         self,
         state: np.ndarray
@@ -90,7 +104,8 @@ class DQNAgent(BaseAgent):
         ''' Chooses epsilon-greedy action from the current velue function.
         '''
         eps = self._get_state_eps(state)
-        eps = min(self.min_eps, eps)
+        eps = max(self.min_eps, eps)
+        # eps = self.min_eps
         if random.random() < eps:
             return random.choice(range(self.action_size))
         else:
@@ -117,17 +132,28 @@ class DQNAgent(BaseAgent):
         """ Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
         """
+        # exp_hash = self._get_exp_hash(state, action, reward, done)
+        # if exp_hash in self.visited_experience:
+        #     if len(self._replay_buffer) >= self.min_replay_size:
+        #         self._update()
+        #     return
         experience = (
             self._transforms(state),
             action,
             torch.tensor(reward).float().unsqueeze(0),
             self._transforms(new_state),
-            torch.tensor(float(done)).float().unsqueeze(0)
+            torch.tensor(float(done)).float().unsqueeze(0),
+            None # exp_hash
         )
         self._replay_buffer.append(experience)
+        # self.visited_experience.add(exp_hash)
         buffer_len = len(self._replay_buffer)
         if buffer_len < self.min_replay_size:
             return
         if buffer_len == self.max_replay_size:
             self._replay_buffer.pop(0)
+            # old_exp = self._replay_buffer.pop(0)
+            # self.visited_experience.remove(old_exp[-1])
+        state_hash = hash(state.data.tobytes())
+        self.visited_states[state_hash] += 1
         self._update()
