@@ -40,7 +40,7 @@ def experience2batches(
     reward = []
     new_state = []
     done = []
-    for s, a, r, s_, d in exp:
+    for s, a, r, s_, d, _ in exp:
         state.append(s)
         action.append(a)
         reward.append(r)
