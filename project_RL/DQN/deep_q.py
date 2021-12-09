@@ -4,6 +4,7 @@ import numpy as np
 import torch
 from torch.optim import Adam
 from collections import defaultdict as dd
+from collections import deque
 from project_RL.agent import BaseAgent
 from project_RL.DQN.q_network import QNet
 from project_RL.batch import (
@@ -27,15 +28,16 @@ class DQNAgent(BaseAgent):
         min_replay_size: int=512,
         max_replay_size: int=1024,
         batch_size: int=8
-    ):
+        ):
+        assert n0 > 0, 'n0 must be a positive integer'
         self.action_size = env.action_space.n
-        # observation = env.reset()
         self.learning_rate = learning_rate
         self.n0 = n0
         self.discount_rate = discount_rate
         self.min_eps = min_eps
         self.visited_states = dd(int)
         self.visited_experience = set()
+        self._last_eps = deque([], 100)
         aspect_reduction = 2
         original_size = 112
         self.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
@@ -58,6 +60,9 @@ class DQNAgent(BaseAgent):
         self._replay_buffer = []
         self.opt = Adam(self.q_net.parameters(), lr=learning_rate)
 
+    def _get_mean_eps(self):
+        return np.mean(self._last_eps)
+
     def get_new_action_greedly(
         self,
         state: np.ndarray
@@ -79,10 +84,7 @@ class DQNAgent(BaseAgent):
         '''
         state.flags.writeable = False
         state = hash(state.data.tobytes())
-        if self.visited_states[state] == 0:
-            return 1
-        else:
-            return self.n0 / (self.n0 + self.visited_states[state])
+        return self.n0 / (self.n0 + self.visited_states[state])
 
     def _get_exp_hash(
         self,
@@ -105,7 +107,7 @@ class DQNAgent(BaseAgent):
         '''
         eps = self._get_state_eps(state)
         eps = max(self.min_eps, eps)
-        # eps = self.min_eps
+        self._last_eps.append(eps)
         if random.random() < eps:
             return random.choice(range(self.action_size))
         else:
@@ -132,28 +134,28 @@ class DQNAgent(BaseAgent):
         """ Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
         """
-        # exp_hash = self._get_exp_hash(state, action, reward, done)
-        # if exp_hash in self.visited_experience:
-        #     if len(self._replay_buffer) >= self.min_replay_size:
-        #         self._update()
-        #     return
+        state_hash = hash(state.data.tobytes())
+        self.visited_states[state_hash] += 1
+        exp_hash = self._get_exp_hash(state, action, reward, done)
+        if exp_hash in self.visited_experience:
+            if len(self._replay_buffer) >= self.min_replay_size:
+                self._update()
+            return
         experience = (
             self._transforms(state),
             action,
             torch.tensor(reward).float().unsqueeze(0),
             self._transforms(new_state),
             torch.tensor(float(done)).float().unsqueeze(0),
-            None # exp_hash
+            exp_hash
         )
         self._replay_buffer.append(experience)
-        # self.visited_experience.add(exp_hash)
+        self.visited_experience.add(exp_hash)
         buffer_len = len(self._replay_buffer)
         if buffer_len < self.min_replay_size:
             return
         if buffer_len == self.max_replay_size:
-            self._replay_buffer.pop(0)
-            # old_exp = self._replay_buffer.pop(0)
-            # self.visited_experience.remove(old_exp[-1])
-        state_hash = hash(state.data.tobytes())
-        self.visited_states[state_hash] += 1
+            # self._replay_buffer.pop(0)
+            old_exp = self._replay_buffer.pop(0)
+            self.visited_experience.remove(old_exp[-1])
         self._update()
