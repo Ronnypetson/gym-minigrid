@@ -20,7 +20,8 @@ class QNet(nn.Module):
                 stride=(1, 1),
                 padding=1
             ),
-            nn.BatchNorm2d(num_features=6),
+            # nn.BatchNorm2d(num_features=6),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.Conv2d(
                 in_channels=6,
@@ -29,7 +30,8 @@ class QNet(nn.Module):
                 stride=(1, 1),
                 padding=1
             ),
-            nn.BatchNorm2d(num_features=6),
+            # nn.BatchNorm2d(num_features=6),
+            # nn.Dropout2d(0.5),
             nn.ReLU(),
             nn.Conv2d(
                 in_channels=6,
@@ -38,13 +40,15 @@ class QNet(nn.Module):
                 stride=(1, 1),
                 padding=1
             ),
-            nn.BatchNorm2d(num_features=6),
+            # nn.BatchNorm2d(num_features=6),
+            # nn.Dropout2d(0.5),
             nn.ReLU()
         )
         hidden_dim = 6 * h * w
         self._mlp = nn.Sequential(
             nn.Linear(hidden_dim, 512),
-            nn.BatchNorm1d(512),
+            # nn.Dropout(0.5),
+            # nn.BatchNorm1d(512),
             nn.ReLU(),
             nn.Linear(512, num_actions)
         )
