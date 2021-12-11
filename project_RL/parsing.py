@@ -27,6 +27,19 @@ def linear_parse_observation_to_state(observation):
     return binary_features
 
 
+def image_parse_observation_to_state(
+    env,
+    observation
+    ):
+    """ Parse encoded observation to image format,
+        oriented by the agent's direction.
+    """
+    img = env.get_obs_render(observation['image'])
+    direction = observation['direction']
+    img = np.rot90(img, k=direction + 1, axes=(1, 0))
+    return img
+
+
 def parse_observation_to_state(observation):
     return tuple([tuple(observation["image"].flatten()),
                   observation["direction"]])
