@@ -1,0 +1,470 @@
+Timer unit: 1e-07 s
+
+Total time: 2.16893 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         23.0     23.0      0.0          R = 0
+    92         1         10.0     10.0      0.0          policy_loss = []
+    93         1          8.0      8.0      0.0          returns = []
+    94                                           
+    95         1       1849.0   1849.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       145        809.0      5.6      0.0          for r in rewards[::-1]:
+   101       144       1066.0      7.4      0.0              R = r + self.discount_rate * R
+   102       144       1406.0      9.8      0.0              returns.insert(0, R)
+   103                                           
+   104         1        964.0    964.0      0.0          returns = torch.tensor(returns)
+   105         1       3705.0   3705.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107        99       3367.0     34.0      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108        98      12874.0    131.4      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1       2585.0   2585.0      0.0          self.opt.zero_grad()
+   111         1       1790.0   1790.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   21159533.0 21159533.0     97.6          policy_loss.backward()
+   113         1     495837.0 495837.0      2.3          self.opt.step()
+   114         1       3460.0   3460.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 6.2928 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         19.0     19.0      0.0          R = 0
+    92         1         10.0     10.0      0.0          policy_loss = []
+    93         1          7.0      7.0      0.0          returns = []
+    94                                           
+    95         1       1558.0   1558.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       416       2086.0      5.0      0.0          for r in rewards[::-1]:
+   101       415       2720.0      6.6      0.0              R = r + self.discount_rate * R
+   102       415       3858.0      9.3      0.0              returns.insert(0, R)
+   103                                           
+   104         1        524.0    524.0      0.0          returns = torch.tensor(returns)
+   105         1       1321.0   1321.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       281       8065.0     28.7      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       280      35065.0    125.2      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      31169.0  31169.0      0.0          self.opt.zero_grad()
+   111         1       5846.0   5846.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   62397623.0 62397623.0     99.2          policy_loss.backward()
+   113         1     431787.0 431787.0      0.7          self.opt.step()
+   114         1       6323.0   6323.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 16.053 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         20.0     20.0      0.0          R = 0
+    92         1         12.0     12.0      0.0          policy_loss = []
+    93         1          8.0      8.0      0.0          returns = []
+    94                                           
+    95         1       1359.0   1359.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100      1045       4559.0      4.4      0.0          for r in rewards[::-1]:
+   101      1044       6176.0      5.9      0.0              R = r + self.discount_rate * R
+   102      1044      10482.0     10.0      0.0              returns.insert(0, R)
+   103                                           
+   104         1        762.0    762.0      0.0          returns = torch.tensor(returns)
+   105         1       1313.0   1313.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       734      18297.0     24.9      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       733      76333.0    104.1      0.0              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      30382.0  30382.0      0.0          self.opt.zero_grad()
+   111         1       9714.0   9714.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1  159930140.0 159930140.0     99.6          policy_loss.backward()
+   113         1     408244.0 408244.0      0.3          self.opt.step()
+   114         1      32294.0  32294.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 4.08264 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         20.0     20.0      0.0          R = 0
+    92         1         14.0     14.0      0.0          policy_loss = []
+    93         1          8.0      8.0      0.0          returns = []
+    94                                           
+    95         1       1750.0   1750.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       259       1457.0      5.6      0.0          for r in rewards[::-1]:
+   101       258       1913.0      7.4      0.0              R = r + self.discount_rate * R
+   102       258       2561.0      9.9      0.0              returns.insert(0, R)
+   103                                           
+   104         1        346.0    346.0      0.0          returns = torch.tensor(returns)
+   105         1       1305.0   1305.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       184       5102.0     27.7      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       183      22405.0    122.4      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      28514.0  28514.0      0.1          self.opt.zero_grad()
+   111         1       4130.0   4130.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   40354502.0 40354502.0     98.8          policy_loss.backward()
+   113         1     397921.0 397921.0      1.0          self.opt.step()
+   114         1       4454.0   4454.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 8.95881 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         26.0     26.0      0.0          R = 0
+    92         1         15.0     15.0      0.0          policy_loss = []
+    93         1          8.0      8.0      0.0          returns = []
+    94                                           
+    95         1       1566.0   1566.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       597       3363.0      5.6      0.0          for r in rewards[::-1]:
+   101       596       4392.0      7.4      0.0              R = r + self.discount_rate * R
+   102       596       6461.0     10.8      0.0              returns.insert(0, R)
+   103                                           
+   104         1        673.0    673.0      0.0          returns = torch.tensor(returns)
+   105         1       1468.0   1468.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       406       9397.0     23.1      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       405      43849.0    108.3      0.0              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      23793.0  23793.0      0.0          self.opt.zero_grad()
+   111         1       4623.0   4623.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   89059067.0 89059067.0     99.4          policy_loss.backward()
+   113         1     409661.0 409661.0      0.5          self.opt.step()
+   114         1      19778.0  19778.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 5.31514 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         19.0     19.0      0.0          R = 0
+    92         1         12.0     12.0      0.0          policy_loss = []
+    93         1          7.0      7.0      0.0          returns = []
+    94                                           
+    95         1       1755.0   1755.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       334       2102.0      6.3      0.0          for r in rewards[::-1]:
+   101       333       2473.0      7.4      0.0              R = r + self.discount_rate * R
+   102       333       3436.0     10.3      0.0              returns.insert(0, R)
+   103                                           
+   104         1        576.0    576.0      0.0          returns = torch.tensor(returns)
+   105         1       1466.0   1466.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       246      10595.0     43.1      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       245      31084.0    126.9      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      24424.0  24424.0      0.0          self.opt.zero_grad()
+   111         1       3806.0   3806.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   52660994.0 52660994.0     99.1          policy_loss.backward()
+   113         1     401594.0 401594.0      0.8          self.opt.step()
+   114         1       7038.0   7038.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 18.5814 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         21.0     21.0      0.0          R = 0
+    92         1         11.0     11.0      0.0          policy_loss = []
+    93         1         11.0     11.0      0.0          returns = []
+    94                                           
+    95         1       1565.0   1565.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100      1225       6414.0      5.2      0.0          for r in rewards[::-1]:
+   101      1224       8597.0      7.0      0.0              R = r + self.discount_rate * R
+   102      1224      17667.0     14.4      0.0              returns.insert(0, R)
+   103                                           
+   104         1       1177.0   1177.0      0.0          returns = torch.tensor(returns)
+   105         1       1689.0   1689.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       872      27110.0     31.1      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       871     112785.0    129.5      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      26456.0  26456.0      0.0          self.opt.zero_grad()
+   111         1      13520.0  13520.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1  185139224.0 185139224.0     99.6          policy_loss.backward()
+   113         1     424932.0 424932.0      0.2          self.opt.step()
+   114         1      32914.0  32914.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 3.66674 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         23.0     23.0      0.0          R = 0
+    92         1         11.0     11.0      0.0          policy_loss = []
+    93         1          7.0      7.0      0.0          returns = []
+    94                                           
+    95         1       1780.0   1780.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       244       1378.0      5.6      0.0          for r in rewards[::-1]:
+   101       243       1803.0      7.4      0.0              R = r + self.discount_rate * R
+   102       243       2431.0     10.0      0.0              returns.insert(0, R)
+   103                                           
+   104         1        530.0    530.0      0.0          returns = torch.tensor(returns)
+   105         1       1498.0   1498.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       174       7240.0     41.6      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       173      22362.0    129.3      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      26475.0  26475.0      0.1          self.opt.zero_grad()
+   111         1       4124.0   4124.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   36199504.0 36199504.0     98.7          policy_loss.backward()
+   113         1     394090.0 394090.0      1.1          self.opt.step()
+   114         1       4156.0   4156.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 5.25466 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         23.0     23.0      0.0          R = 0
+    92         1         13.0     13.0      0.0          policy_loss = []
+    93         1          8.0      8.0      0.0          returns = []
+    94                                           
+    95         1       1804.0   1804.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100       341       1905.0      5.6      0.0          for r in rewards[::-1]:
+   101       340       2564.0      7.5      0.0              R = r + self.discount_rate * R
+   102       340       3482.0     10.2      0.0              returns.insert(0, R)
+   103                                           
+   104         1        624.0    624.0      0.0          returns = torch.tensor(returns)
+   105         1       1578.0   1578.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       248       8528.0     34.4      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       247      29850.0    120.9      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      25510.0  25510.0      0.0          self.opt.zero_grad()
+   111         1       3919.0   3919.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1   52062290.0 52062290.0     99.1          policy_loss.backward()
+   113         1     398791.0 398791.0      0.8          self.opt.step()
+   114         1       5688.0   5688.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
+Timer unit: 1e-07 s
+
+Total time: 18.7562 s
+File: d:\documentos\gym-minigrid\project_RL\REINFORCE\reinforce.py
+Function: update at line 87
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+    87                                               def update(self, rewards):
+    88                                                   """ Updates the state action value for every pair state and action
+    89                                                   in proportion to TD-error and eligibility trace
+    90                                                   """ 
+    91         1         22.0     22.0      0.0          R = 0
+    92         1         13.0     13.0      0.0          policy_loss = []
+    93         1          6.0      6.0      0.0          returns = []
+    94                                           
+    95         1       1322.0   1322.0      0.0          self.q_net.train()
+    96                                                   # batch_ids = np.random.choice(list(range(len(self._replay_buffer))), self.batch_size)
+    97                                                   # batch_exp = [self._replay_buffer[idx] for idx in batch_ids]
+    98                                                   # states, actions, rewards, new_state = experience2batches(batch_exp)
+    99                                           
+   100      1262       5396.0      4.3      0.0          for r in rewards[::-1]:
+   101      1261       7381.0      5.9      0.0              R = r + self.discount_rate * R
+   102      1261      12978.0     10.3      0.0              returns.insert(0, R)
+   103                                           
+   104         1        755.0    755.0      0.0          returns = torch.tensor(returns)
+   105         1       1043.0   1043.0      0.0          returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
+   106                                                   
+   107       880      21831.0     24.8      0.0          for log_prob, R in zip(self.log_probs, returns):
+   108       879      96396.0    109.7      0.1              policy_loss.append(-log_prob * R)
+   109                                               
+   110         1      23303.0  23303.0      0.0          self.opt.zero_grad()
+   111         1      11536.0  11536.0      0.0          policy_loss = torch.cat(policy_loss).sum()
+   112         1  186940609.0 186940609.0     99.7          policy_loss.backward()
+   113         1     405597.0 405597.0      0.2          self.opt.step()
+   114         1      33944.0  33944.0      0.0          del self.log_probs[:]
+
+
+
+
+
+
+
+
+
+
+
