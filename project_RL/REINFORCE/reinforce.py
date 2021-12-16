@@ -87,7 +87,7 @@ class DQNAgent(BaseAgent):
         """ Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
         """
-        if len(self.log_probs) == 0:
+        if len(self.log_probs) < 2:
             return
 
         R = 0
@@ -104,7 +104,7 @@ class DQNAgent(BaseAgent):
             returns.insert(0, R)
 
         returns = torch.tensor(returns)
-        returns = (returns - returns.mean()) / (returns.std() + 1e-10) ###
+        returns = (returns - returns.mean()) / (returns.std() + 1e-2) ###
 
         for log_prob, R in zip(self.log_probs, returns):
             policy_loss.append(-log_prob * R)
@@ -112,5 +112,8 @@ class DQNAgent(BaseAgent):
         self.opt.zero_grad()
         policy_loss = torch.cat(policy_loss).sum()
         policy_loss.backward()
+        for param in self.q_net.parameters():
+            if not param.grad.isfinite().all():
+                import pdb; pdb.set_trace()
         self.opt.step()
         self.log_probs = [] ### 
