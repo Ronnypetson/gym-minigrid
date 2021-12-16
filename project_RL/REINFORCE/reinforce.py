@@ -45,8 +45,8 @@ class DQNAgent(BaseAgent):
                 lambda x: x.permute(0, 3, 1, 2)
             ]
         )
-       
-        self.opt = Adam(self.q_net.parameters(), lr=3e-4)
+
+        self.opt = Adam(self.q_net.parameters(), lr=learning_rate)
 
     def get_new_action_greedly(
         self,
@@ -82,11 +82,14 @@ class DQNAgent(BaseAgent):
             return random.choice(range(self.action_size))
         else:
             return self.get_new_action_greedly(state)
-    
+
     def update(self, rewards):
         """ Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
-        """ 
+        """
+        if len(self.log_probs) == 0:
+            return
+
         R = 0
         policy_loss = []
         returns = []
@@ -101,13 +104,13 @@ class DQNAgent(BaseAgent):
             returns.insert(0, R)
 
         returns = torch.tensor(returns)
-        returns = (returns - returns.mean()) / (returns.std()) + (np.finfo(np.float32).eps.item())
-        
+        returns = (returns - returns.mean()) / (returns.std() + 1e-10) ###
+
         for log_prob, R in zip(self.log_probs, returns):
             policy_loss.append(-log_prob * R)
-    
+
         self.opt.zero_grad()
         policy_loss = torch.cat(policy_loss).sum()
         policy_loss.backward()
         self.opt.step()
-        del self.log_probs[:]
+        self.log_probs = [] ### 

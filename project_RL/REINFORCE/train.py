@@ -8,7 +8,8 @@ from project_RL.parsing import image_parse_observation_to_state
 import dill
 import pickle
 from matplotlib import pyplot as plt
-from line_profiler import LineProfiler
+# from line_profiler import LineProfiler
+
 
 def train(
     env,
@@ -108,14 +109,14 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
         # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
-        'discount_rate': 0.99,
-        'learning_rate': 1e-5,
+        'discount_rate': 0.9,
+        'learning_rate': 5e-5,
         'n0': 2500,
         'min_eps': 0.3
     }
 
     env = gym.make(hyperparameters['env_name'])
-    env.max_steps = 100
+    # env.max_steps = 100
     agent = train(
         env,
         hyperparameters,
