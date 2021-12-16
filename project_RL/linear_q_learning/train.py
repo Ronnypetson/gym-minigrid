@@ -75,7 +75,7 @@ def train(env, hyperparameters):
 
 if __name__ == '__main__':
     hyperparameters = {
-        'env_name': 'MiniGrid-Empty-8x8-v0',
+        # 'env_name': 'MiniGrid-Empty-8x8-v0',
         # 'env_name': 'MiniGrid-DoorKey-8x8-v0',
         # 'env_name': 'MiniGrid-Empty-Random-6x6-v0',
         # 'env_name': 'MiniGrid-Empty-16x16-v0',
@@ -84,7 +84,7 @@ if __name__ == '__main__':
         # 'env_name': 'MiniGrid-SimpleCrossingS9N1-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-5x5-v0',
         # 'env_name': 'MiniGrid-Dynamic-Obstacles-Random-6x6-v0',
-        # 'env_name': 'MiniGrid-DoorKeyObst-7x7-v0',
+        'env_name': 'MiniGrid-DoorKeyObst-6x6-v0',
         'discount_rate': 0.99,
         'learning_rate': 1e-3,
         'n0': 20,
