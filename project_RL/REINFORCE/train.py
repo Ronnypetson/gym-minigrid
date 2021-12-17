@@ -117,7 +117,7 @@ if __name__ == '__main__':
     }
 
     env = gym.make(hyperparameters['env_name'])
-    # env.max_steps = 100
+    # env.max_steps = 3
     agent = train(
         env,
         hyperparameters,

@@ -79,7 +79,8 @@ class DQNAgent(BaseAgent):
         ''' Chooses epsilon-greedy action from the current velue function.
         '''
         if random.random() < self.min_eps:
-            self.log_probs.append(torch.tensor([np.log(1.0 / self.action_size)]))
+            dummy_log_prob = torch.tensor([np.log(1.0 / self.action_size)], requires_grad=True)
+            self.log_probs.append(dummy_log_prob)
             return random.choice(range(self.action_size))
         else:
             return self.get_new_action_greedly(state)
