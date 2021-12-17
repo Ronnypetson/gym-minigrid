@@ -79,6 +79,7 @@ class DQNAgent(BaseAgent):
         ''' Chooses epsilon-greedy action from the current velue function.
         '''
         if random.random() < self.min_eps:
+            self.log_probs.append(torch.tensor([np.log(1.0 / self.action_size)]))
             return random.choice(range(self.action_size))
         else:
             return self.get_new_action_greedly(state)
@@ -87,7 +88,8 @@ class DQNAgent(BaseAgent):
         """ Updates the state action value for every pair state and action
         in proportion to TD-error and eligibility trace
         """
-        if len(rewards) < 2:
+        assert len(self.log_probs) > len(rewards)
+        if len(rewards) < 2 or len(self.log_probs) < 2:
             return
 
         R = 0
@@ -106,7 +108,8 @@ class DQNAgent(BaseAgent):
         returns = torch.tensor(returns)
         returns = (returns - returns.mean()) / (returns.std() + 1e-2) ###
 
-        for log_prob, R in zip(self.log_probs, returns):
+        for i in range(len(rewards)):
+            log_prob, R = self.log_probs[i], returns[i]
             policy_loss.append(-log_prob * R)
 
         self.opt.zero_grad()
